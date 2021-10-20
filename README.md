@@ -1,5 +1,5 @@
 # AP1-EC-GustavoMotaBarros
 Trabalho de introdução a computação
 
-# ALuno
+# Aluno
 202104971 - Gustavo Mota Barros
