@@ -294,6 +294,7 @@ void excluir_cliente(cliente **vetor,char codigo[],int *contador){
         *contador = *contador - 1;
 
     }
+    printf("\nCLIENTE EXCLUIDO COM SUCESSO!\n");
 }
 
 void linha(char palavra[]){
@@ -571,6 +572,7 @@ void cadastro_de_conta(cliente **vet,int c,conta **vetor,int *contador){
             printf("\n\nERRO! CONTA JA CADASTRADA!\n\n");
         }
         else{
+            printf("\nCADASTRO REALIZADO COM SUCESSO!\n");
             escrever_no_arquivo_para_contas(vetor,*contador);
         }
     }
@@ -735,19 +737,23 @@ void printar_contas(char **lista, conta **vetor, int contador, int contador2){
     free(ptr);*/
 
 }
-conta pegar_acc(char agencia[],char numero[], conta **vetor, int contador){
+conta *pegar_acc(char agencia[],char numero[], conta **vetor, int contador){
 
-    int c;
+    int c, cont = 0;
 
     for(int n = 0; n < contador; n++){
 
         if(strcmp(strlwr(agencia),strlwr(vetor[n][0].agencia)) == 0 && strcmp(numero,vetor[n][0].numero_da_conta) == 0){
             c = n;
+            cont ++;
         }
     }
-
-    return vetor[c][0];
-
+    if(cont > 0){
+        return &vetor[c][0];
+    }
+    else{
+        return NULL;
+    }
 }
 
 void saque(conta **vetor, int contador, transacao *v_transacao, int *contador_transacao){
@@ -820,8 +826,11 @@ void saque(conta **vetor, int contador, transacao *v_transacao, int *contador_tr
         int vetor_notas[7] = {200,100,50,20,10,5,2};
         int frequencia_notas[7] = {0,0,0,0,0,0,0};
         int cont1 = 0;
+        
+        printf("\nSAQUE REALIZADO COM SUCESSO!");
 
         printf("\nO valor sera sacado em:\n");
+
         while(quantidade != 0){
 
             if(quantidade >= (float) vetor_notas[cont1]){
@@ -930,7 +939,7 @@ void deposito(conta **vetor, int contador, transacao *v_transacao, int *contador
 
         char descricao[100];
         fflush(stdin);
-        printf("\nInforme a descricao do saque:");
+        printf("\nInforme a descricao do deposito:");
         gets(descricao);
 
         strcpy(v_transacao[*contador_transacao].tipo,credito);
@@ -944,6 +953,7 @@ void deposito(conta **vetor, int contador, transacao *v_transacao, int *contador
         vetor[c][0].saldo += quantidade;
 
         *contador_transacao = *contador_transacao + 1;
+        printf("\nDEPOSITO REALIZADO COM SUCESSO!\n");
     }
 }
 void transferencia(conta **vetor, int contador, transacao *v_transacao, int *contador_transacao){
@@ -989,9 +999,9 @@ void transferencia(conta **vetor, int contador, transacao *v_transacao, int *con
         gets(numero);
         printf("\n");
 
-        cont = 0;
+
         for(int n = 0; n < contador; n++){
-            
+
             if(strcmp(strlwr(agencia),strlwr(vetor[n][0].agencia)) == 0 && strcmp(numero,vetor[n][0].numero_da_conta) == 0){
                 b = n;
                 cont ++;
@@ -1058,6 +1068,7 @@ void transferencia(conta **vetor, int contador, transacao *v_transacao, int *con
             strcpy(v_transacao[*contador_transacao].descricao,descricao2);
 
             *contador_transacao = *contador_transacao + 1;
+            printf("\nTRANSFERENCIA REALIZADA COM SUCESSO!\n");
 
         }
     }
@@ -1108,7 +1119,7 @@ void extrato(conta **vetor_c,int contador_contas,transacao *vetor, int contador)
 
             t_extrato = ((vetor[i].tempo.dia * vetor[i].tempo.mes) * vetor[i].tempo.ano) - ((vetor[0].tempo.dia * vetor[0].tempo.mes) * vetor[0].tempo.ano);
 
-            if(t_extrato > t_analise && strcmp(vetor[i].acc.agencia,agencia) == 0 && strcmp(vetor[i].acc.numero_da_conta,numero) == 0){
+            if(t_extrato > t_analise && strcmp(strupr(vetor[i].acc.agencia),strupr(agencia)) == 0 && strcmp(vetor[i].acc.numero_da_conta,numero) == 0){
                 printf("Tipo: %s\nValor: %f\nData: %d/%d/%d\nAgencia: %s\nNumero da conta: %s\nDescricao: %s\n\n",vetor[i].tipo,vetor[i].valor,vetor[i].tempo.dia,vetor[i].tempo.mes,vetor[i].tempo.ano,
                        vetor[i].acc.agencia,vetor[i].acc.numero_da_conta,vetor[i].descricao);
             }
@@ -1205,18 +1216,34 @@ int main(){
             char cod[10];
             fscanf(arq,"%[^\n]",cod);
             fscanf(arq,"\n");
-            vetor_contas[contador_contas][0].c = *busca(vetor_cadastro,contador_cadastro,cod);
-            fscanf(arq,"%[^\n]",vetor_contas[contador_contas][0].agencia);
-            fscanf(arq,"\n");
-            fscanf(arq,"%[^\n]",vetor_contas[contador_contas][0].numero_da_conta);
-            fscanf(arq,"\n");
-            fscanf(arq,"%f",&vetor_contas[contador_contas][0].saldo);
-            fscanf(arq,"\n");
+            
+            if(busca(vetor_cadastro,contador_cadastro,cod) != NULL){
+            
+                vetor_contas[contador_contas][0].c = *busca(vetor_cadastro,contador_cadastro,cod);
+                fscanf(arq,"%[^\n]",vetor_contas[contador_contas][0].agencia);
+                fscanf(arq,"\n");
+                fscanf(arq,"%[^\n]",vetor_contas[contador_contas][0].numero_da_conta);
+                fscanf(arq,"\n");
+                fscanf(arq,"%f",&vetor_contas[contador_contas][0].saldo);
+                fscanf(arq,"\n");
 
-            posicao = ftell(arq);
-            contador_contas++;
-            vetor_contas = realloc(vetor_contas,(contador_contas +1)*sizeof(conta *));
-            vetor_contas[contador_contas] = malloc(1*sizeof(conta));
+                posicao = ftell(arq);
+                contador_contas++;
+                vetor_contas = realloc(vetor_contas,(contador_contas +1)*sizeof(conta *));
+                vetor_contas[contador_contas] = malloc(1*sizeof(conta));
+
+            }
+            else{
+                fscanf(arq,"%[^\n]",vetor_contas[contador_contas][0].agencia);
+                fscanf(arq,"\n");
+                fscanf(arq,"%[^\n]",vetor_contas[contador_contas][0].numero_da_conta);
+                fscanf(arq,"\n");
+                fscanf(arq,"%f",&vetor_contas[contador_contas][0].saldo);
+                fscanf(arq,"\n");
+
+                posicao = ftell(arq);
+                free(vetor_contas[contador_contas]);
+            }
 
         }
     }
@@ -1258,17 +1285,30 @@ int main(){
             fscanf(tra,"\n");
             fscanf(tra,"%[^\n]",numero);
             fscanf(tra,"\n");
-            vetor_transacao[contador_transacao].acc = pegar_acc(agencia,numero,vetor_contas,contador_contas);
+            
+            if(pegar_acc(agencia,numero,vetor_contas,contador_contas) != NULL){
+                
+                vetor_transacao[contador_transacao].acc = *pegar_acc(agencia,numero,vetor_contas,contador_contas);
 
-            fscanf(tra,"%d/%d/%d",&vetor_transacao[contador_transacao].tempo.dia,&vetor_transacao[contador_transacao].tempo.mes,&vetor_transacao[contador_transacao].tempo.ano);
-            fscanf(tra,"\n");
-            fscanf(tra,"%[^\n]",vetor_transacao[contador_transacao].descricao);
-            fscanf(tra,"\n");
+                fscanf(tra,"%d/%d/%d",&vetor_transacao[contador_transacao].tempo.dia,&vetor_transacao[contador_transacao].tempo.mes,&vetor_transacao[contador_transacao].tempo.ano);
+                fscanf(tra,"\n");
+                fscanf(tra,"%[^\n]",vetor_transacao[contador_transacao].descricao);
+                fscanf(tra,"\n");
+                
+                posicao = ftell(tra);
+                contador_transacao++;
+                vetor_transacao = realloc(vetor_transacao,(contador_transacao +1)*sizeof(transacao));
 
-            posicao = ftell(tra);
-            contador_transacao++;
-            vetor_transacao = realloc(vetor_transacao,(contador_transacao +1)*sizeof(transacao));
+            }
+            else{
+                
+                fscanf(tra,"%d/%d/%d",&vetor_transacao[contador_transacao].tempo.dia,&vetor_transacao[contador_transacao].tempo.mes,&vetor_transacao[contador_transacao].tempo.ano);
+                fscanf(tra,"\n");
+                fscanf(tra,"%[^\n]",vetor_transacao[contador_transacao].descricao);
+                fscanf(tra,"\n");
 
+                posicao = ftell(tra); 
+            }
         }
     }
     fclose(tra);
