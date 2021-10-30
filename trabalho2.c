@@ -121,11 +121,11 @@ char ** listagem_clientes(char **lista, int contador){
     int i = 0;
     int cont1 = 0,cont2,cont3 = 0;
 
-    while(i <= contador){
-
-        if(contador > 1){
+    while(contador != 0){
 
             for(int n = 0; n < contador; n++){
+
+                strlwr(lista[i]);
 
                 if(tolower(lista[i][0]) < tolower(lista[n][0])){
                     cont1++;
@@ -163,18 +163,15 @@ char ** listagem_clientes(char **lista, int contador){
                 i = 0;
                 contador = contador - 1;
                 cont1 = 0;
+                if(contador == 0){
+                    break;
+                }
             }
             else{
                 i++;
                 cont1 = 0;
             }
-        }
-        else{
-            ptr[cont3] = malloc(30*sizeof(char));
-            strcpy(ptr[cont3],lista[i]);
-            free(lista);
-            break;
-        }
+        
     }
 
     return ptr;
@@ -371,7 +368,7 @@ char menu(){
     char comando_menu;
 
     linha("Bem vindo!");
-    printf("Digite um comando_menu para prosseguir:\n");
+    printf("Digite um comando para prosseguir:\n");
     printf("C - Gerenciar clientes\n");
     printf("T - Gerenciar contas\n");
     printf("S - Sair\n");
